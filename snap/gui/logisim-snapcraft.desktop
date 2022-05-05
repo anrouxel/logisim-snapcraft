@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Exec=logisim-snapcraft
+Icon=${SNAP}/meta/gui/logisim-icon-128.png
+Categories=Science;Education;
+Name=Logisim
+Comment=Logisim ${SNAPCRAFT_PROJECT_VERSION}

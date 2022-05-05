@@ -1,0 +1,142 @@
+name: logisim-snapcraft
+icon: snap/gui/logisim-icon-128.png
+license: GPL-3.0
+summary: Logisim is a digital circuit simulator
+description: |
+  Github (compilation) : https://github.com/anrouxel/Logisim_snapcraft
+  Github (source) : https://github.com/Logisim-Ita/Logisim
+base: core20
+grade: stable
+confinement: strict
+
+adopt-info: logisim-snapcraft
+
+architectures:
+  - build-on: amd64
+
+layout:
+  /etc/fonts:
+    bind: $SNAP/etc/fonts
+  /usr/share/fonts:
+    bind: $SNAP/usr/share/fonts
+  /var/cache/fontconfig:
+    bind: $SNAP_DATA/var/cache/fontconfig
+
+apps:
+  logisim-snapcraft:
+    extensions: [gnome-3-38]
+    command: usr/lib/jvm/java-17-openjdk-amd64/bin/java -jar $SNAP/logisim/logisim.jar
+    environment:
+      DISABLE_WAYLAND: '1'
+      JAVA_HOME: $SNAP/usr/lib/jvm/java-17-openjdk-amd64
+      PATH: $JAVA_HOME/bin:$PATH
+      _JAVA_OPTIONS: "-Duser.home=$SNAP_USER_DATA"
+      XDG_DATA_HOME: $SNAP/usr/share
+      FONTCONFIG_PATH: $SNAP/etc/fonts/conf.d
+      FONTCONFIG_FILE: $SNAP/etc/fonts/fonts.conf
+    plugs:
+      - gsettings
+      - opengl
+      - home
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - unity7
+
+parts:
+  maven:
+    plugin: nil
+    source: https://github.com/apache/maven.git
+    source-type: git
+    override-pull: |
+      snapcraftctl pull
+      git checkout "$(git describe --tags `git rev-list --tags --max-count=1`)" -b latest
+    override-build: |
+      # Gets the host and port from a proxy URL
+      #   $1 = the proxy URL, such as "http://10.10.10.1:8222/"
+      getproxy () {
+          # Parses URL with Bash or Dash shell parameter expansion
+          tail=${1#http*://}
+          head=${tail%%/*}
+          host=${head%:*}
+          port=${head##*:}
+      }
+      # Sets Java networking properties when using a proxy server
+      proxies=""
+      if [ -n "${http_proxy:-}" ]; then
+          getproxy "$http_proxy"
+          proxies="-Dhttp.proxyHost=$host -Dhttp.proxyPort=$port"
+      fi
+      if [ -n "${https_proxy:-}" ]; then
+          getproxy "$https_proxy"
+          proxies="$proxies -Dhttps.proxyHost=$host -Dhttps.proxyPort=$port"
+      fi
+      # Builds Maven
+      export MAVEN_OPTS="$proxies"
+      export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      mvn -DdistributionTargetDir="/usr/share/apache-maven" \
+        --batch-mode --strict-checksums --quiet --show-version \
+        package
+    build-packages:
+      - git
+      - sed
+      - maven
+      - openjdk-11-jdk
+  
+  logisim-snapcraft:
+    after:
+      - maven
+    plugin: nil
+    source: https://github.com/Logisim-Ita/Logisim.git
+    source-type: git
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version "$(git describe --tags | sed 's/v//' | sed "s/-g/%/"  | cut -d "%" -f1)"
+    override-build: |
+      cd Logisim-Fork/
+      ln -s /usr/share/apache-maven /usr/share/maven
+      # Gets the host and port from a proxy URL
+      #   $1 = the proxy URL, such as "http://10.10.10.1:8222/"
+      getproxy () {
+          # Parses URL with Bash or Dash shell parameter expansion
+          tail=${1#http*://}
+          head=${tail%%/*}
+          host=${head%:*}
+          port=${head##*:}
+      }
+      # Sets Java networking properties when using a proxy server
+      proxies=""
+      if [ -n "${http_proxy:-}" ]; then
+          getproxy "$http_proxy"
+          proxies="-Dhttp.proxyHost=$host -Dhttp.proxyPort=$port"
+      fi
+      if [ -n "${https_proxy:-}" ]; then
+          getproxy "$https_proxy"
+          proxies="$proxies -Dhttps.proxyHost=$host -Dhttps.proxyPort=$port"
+      fi
+      # Builds Maven
+      export MAVEN_OPTS="$proxies"
+      export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+      export M2_HOME=/usr/share/apache-maven
+      export MAVEN_HOME=/usr/share/apache-maven
+      export PATH=${M2_HOME}/bin:${PATH}
+      mvn --show-version package
+      cd target
+      mv Logisim-jar-with-dependencies.jar $SNAPCRAFT_PART_INSTALL/
+      cd $SNAPCRAFT_PART_INSTALL/
+      mv Logisim-jar-with-dependencies.jar logisim.jar
+      mkdir logisim
+      mv logisim.jar $SNAPCRAFT_PART_INSTALL/logisim
+      cd $SNAPCRAFT_PART_INSTALL/
+    build-packages:
+      - git
+      - sed
+      - openjdk-17-jdk
+      - libfontconfig1-dev
+    stage-packages:
+      - openjdk-17-jre
+      - fonts-freefont-ttf
+      - fonts-arphic-uming
+      - fontconfig-config
+      - libgtk-3-0
