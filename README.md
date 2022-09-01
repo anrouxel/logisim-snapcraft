@@ -1,7 +1,5 @@
 # Logisim Snapcraft
 
-[![🧪 Test snap can be built on x86_64](https://github.com/anrouxel/logisim-snapcraft/actions/workflows/snapcraft-test.yml/badge.svg)](https://github.com/anrouxel/logisim-snapcraft/actions/workflows/snapcraft-test.yml)
-
 Empaquetage de Logisim pour Snapcraft
 
 Logisim is a digital circuit simulator
