@@ -5,7 +5,7 @@ summary: Logisim is a digital circuit simulator
 description: |
   Github (compilation) : https://github.com/anrouxel/Logisim_snapcraft
   Github (source) : https://github.com/Logisim-Ita/Logisim
-base: core20
+base: core22
 grade: stable
 confinement: strict
 
@@ -13,6 +13,7 @@ adopt-info: logisim-snapcraft
 
 architectures:
   - build-on: amd64
+    build-for: amd64
 
 layout:
   /etc/fonts:
@@ -24,11 +25,11 @@ layout:
 
 apps:
   logisim-snapcraft:
-    extensions: [gnome-3-38]
-    command: usr/lib/jvm/java-17-openjdk-amd64/bin/java -jar $SNAP/logisim/logisim.jar
+    extensions: [gnome]
+    command: usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH/bin/java -jar $SNAP/logisim/logisim.jar
     environment:
       DISABLE_WAYLAND: '1'
-      JAVA_HOME: $SNAP/usr/lib/jvm/java-17-openjdk-amd64
+      JAVA_HOME: $SNAP/usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH
       PATH: $JAVA_HOME/bin:$PATH
       _JAVA_OPTIONS: "-Duser.home=$SNAP_USER_DATA"
       XDG_DATA_HOME: $SNAP/usr/share
@@ -50,7 +51,7 @@ parts:
     source: https://github.com/apache/maven.git
     source-type: git
     override-pull: |
-      snapcraftctl pull
+      craftctl default
       git checkout "$(git describe --tags `git rev-list --tags --max-count=1`)" -b latest
     override-build: |
       # Gets the host and port from a proxy URL
@@ -74,7 +75,8 @@ parts:
       fi
       # Builds Maven
       export MAVEN_OPTS="$proxies"
-      export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-$CRAFT_TARGET_ARCH
+      export PATH=${JAVA_HOME}/bin:${PATH}
       mvn -DdistributionTargetDir="/usr/share/apache-maven" \
         --batch-mode --strict-checksums --quiet --show-version \
         package
@@ -91,8 +93,8 @@ parts:
     source: https://github.com/Logisim-Ita/Logisim.git
     source-type: git
     override-pull: |
-      snapcraftctl pull
-      snapcraftctl set-version "$(git describe --tags | sed 's/v//' | sed "s/-g/%/"  | cut -d "%" -f1)"
+      craftctl default
+      craftctl set version="$(git describe --tags | sed 's/v//' | sed "s/-g/%/"  | cut -d "%" -f1)"
     override-build: |
       cd Logisim-Fork/
       ln -s /usr/share/apache-maven /usr/share/maven
@@ -117,18 +119,18 @@ parts:
       fi
       # Builds Maven
       export MAVEN_OPTS="$proxies"
-      export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+      export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH
       export M2_HOME=/usr/share/apache-maven
       export MAVEN_HOME=/usr/share/apache-maven
-      export PATH=${M2_HOME}/bin:${PATH}
+      export PATH=${JAVA_HOME}/bin:${M2_HOME}/bin:${PATH}
       mvn --show-version package
       cd target
-      mv Logisim-jar-with-dependencies.jar $SNAPCRAFT_PART_INSTALL/
-      cd $SNAPCRAFT_PART_INSTALL/
+      mv Logisim-jar-with-dependencies.jar $CRAFT_PART_INSTALL/
+      cd $CRAFT_PART_INSTALL/
       mv Logisim-jar-with-dependencies.jar logisim.jar
       mkdir logisim
-      mv logisim.jar $SNAPCRAFT_PART_INSTALL/logisim
-      cd $SNAPCRAFT_PART_INSTALL/
+      mv logisim.jar $CRAFT_PART_INSTALL/logisim
+      cd $CRAFT_PART_INSTALL/
     build-packages:
       - git
       - sed
