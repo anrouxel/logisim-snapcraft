@@ -78,6 +78,7 @@ parts:
       # Builds Maven
       export MAVEN_OPTS="$proxies"
       export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-$CRAFT_ARCH_TRIPLET
+      export PATH=${JAVA_HOME}/bin:${PATH}
       mvn -DdistributionTargetDir="/usr/share/apache-maven" \
         --batch-mode --strict-checksums --quiet --show-version \
         package
@@ -123,7 +124,7 @@ parts:
       export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-$CRAFT_ARCH_TRIPLET
       export M2_HOME=/usr/share/apache-maven
       export MAVEN_HOME=/usr/share/apache-maven
-      export PATH=${M2_HOME}/bin:${PATH}
+      export PATH=${JAVA_HOME}/bin:${M2_HOME}/bin:${PATH}
       mvn --show-version package
       cd target
       mv Logisim-jar-with-dependencies.jar $CRAFT_PART_INSTALL/
