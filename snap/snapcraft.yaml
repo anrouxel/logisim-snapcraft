@@ -27,7 +27,7 @@ layout:
 
 apps:
   logisim-snapcraft:
-    extensions: [gnome-42]
+    extensions: [gnome-42-2204]
     command: usr/lib/jvm/java-17-openjdk-$CRAFT_ARCH_TRIPLET/bin/java -jar $SNAP/logisim/logisim.jar
     environment:
       DISABLE_WAYLAND: '1'
