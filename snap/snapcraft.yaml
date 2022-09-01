@@ -12,10 +12,8 @@ confinement: strict
 adopt-info: logisim-snapcraft
 
 architectures:
-  - build-on: [amd64]
-    build-for: [amd64]
-  - build-on: [amd64]
-    build-for: [arm64]
+  - build-on: amd64
+    build-for: amd64
 
 layout:
   /etc/fonts:
