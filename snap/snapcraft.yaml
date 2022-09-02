@@ -28,7 +28,6 @@ apps:
     extensions: [gnome]
     command: usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH/bin/java -jar $SNAP/logisim/logisim.jar
     environment:
-      DISABLE_WAYLAND: '1'
       JAVA_HOME: $SNAP/usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH
       PATH: $JAVA_HOME/bin:$PATH
       _JAVA_OPTIONS: "-Duser.home=$SNAP_USER_DATA"
@@ -143,3 +142,5 @@ parts:
       - fontconfig-config
       - libgtk-3-0
       - libcanberra-gtk-module
+      - libcanberra-gtk3-0
+      - libcanberra-gtk3-module
