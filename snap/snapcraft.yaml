@@ -140,7 +140,4 @@ parts:
       - fonts-freefont-ttf
       - fonts-arphic-uming
       - fontconfig-config
-      - libgtk-3-0
-      - libcanberra-gtk-module
-      - libcanberra-gtk3-0
-      - libcanberra-gtk3-module
+      - libgtk2.0
