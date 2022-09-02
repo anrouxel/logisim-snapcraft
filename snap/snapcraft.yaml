@@ -142,3 +142,4 @@ parts:
       - fonts-arphic-uming
       - fontconfig-config
       - libgtk-3-0
+      - libcanberra-gtk-module
