@@ -29,7 +29,7 @@ apps:
     command: usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH/bin/java -jar $SNAP/logisim/logisim.jar
     environment:
       JAVA_HOME: $SNAP/usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH
-      PATH: $JAVA_HOME/bin:$PATH
+      PATH: $JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH
       _JAVA_OPTIONS: "-Duser.home=$SNAP_USER_DATA"
       XDG_DATA_HOME: $SNAP/usr/share
       FONTCONFIG_PATH: $SNAP/etc/fonts/conf.d
