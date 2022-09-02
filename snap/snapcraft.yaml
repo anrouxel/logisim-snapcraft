@@ -140,4 +140,3 @@ parts:
       - fonts-freefont-ttf
       - fonts-arphic-uming
       - fontconfig-config
-      - libgtk2.0
